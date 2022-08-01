@@ -1,6 +1,9 @@
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
+const path = require("path");
+const rootPath = path.join(__dirname + "\\..");
+
 const ContentGenerator = require("../ContentGenerator");
 const { DAY, HOUR } = require("../utils/time");
 const userData = require("../utils/userData");
@@ -55,19 +58,21 @@ const getChangesets = async (displayName, startTime, endTime) => {
 
   responses = responses.filter((response) => response.status === 200);
   if (retryUrls.length > 0) {
-    const retyrResponses = await Promise.all(
+    const retryResponses = await Promise.all(
       retryUrls.map((url) => fetch(url))
     );
-    responses.push(...retyrResponses);
+    responses.push(...retryResponses);
   }
 
   let data = await Promise.all(responses.map((response) => response.json()));
   data = data.flatMap((item) => item.changesets);
-  data = data.map((item) => {
-    for (let [key, value] of Object.entries(item.tags)) item[key] = value;
-    delete item.tags;
-    return item;
-  });
+  data = data
+    .map((item) => {
+      for (let [key, value] of Object.entries(item.tags)) item[key] = value;
+      delete item.tags;
+      return item;
+    })
+    .sort((a, b) => Date.parse(a.closed_at) - Date.parse(b.closed_at));
 
   return data;
 };
@@ -89,8 +94,7 @@ exports.changesets = async (req, res, next) => {
       output: changesets,
     });
 
-    const directoryPath = `${__dirname}`.split("\\").slice(0, -1).join("\\");
-    res.status(200).sendFile(directoryPath + "/html-templates/output.html");
+    res.status(200).sendFile(rootPath + "/./html-templates/output.html");
 
     // res.status(200).json({
     //   status: "success",
