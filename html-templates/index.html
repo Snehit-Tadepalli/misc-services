@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Changesets</title>
+    <style>
+      .output {
+        padding: 0 0.5rem;
+        border-radius: 10px;
+        box-shadow: 0 0 0 0.5px black;
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        gap: 0.5rem;
+      }
+
+      .output p {
+        max-width: 15rem;
+      }
+
+      .output-holder {
+        padding: 0 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Status: <%=STATUS=%></h3>
+    <main>
+      <h3>Content:</h3>
+      <div class="output-holder"><%=MAIN=%></div>
+    </main>
+    <div>
+      <h3>Message:</h3>
+      <p><%=MESSAGE=%></p>
+    </div>
+  </body>
+</html>
