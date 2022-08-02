@@ -86,24 +86,24 @@ exports.changesets = async (req, res, next) => {
     const user = checkForValidUserName(userName);
     const changesets = await getChangesets(user, start, end);
 
-    ContentGenerator.generateHtml({
-      status: "success",
-      message: `Changesets of the User: ${userName} from ${new Date(
-        getISO(startTime)
-      )} to ${new Date(getISO(endTime))}`,
-      output: changesets,
-    });
-
-    res.status(200).sendFile(rootPath + "/./html-templates/output.html");
-
-    // res.status(200).json({
+    // ContentGenerator.generateHtml({
     //   status: "success",
-    //   message: `Changesets of the User: ${userName} from ${getISO(
-    //     startTime
-    //   )} to ${getISO(endTime)}`,
-    //   length: changesets.length,
+    //   message: `Changesets of the User: ${userName} from ${new Date(
+    //     getISO(startTime)
+    //   )} to ${new Date(getISO(endTime))}`,
     //   output: changesets,
     // });
+
+    // res.status(200).sendFile(rootPath + "/./html-templates/output.html");
+
+    res.status(200).json({
+      status: "success",
+      message: `Changesets of the User: ${userName} from ${getISO(
+        startTime
+      )} to ${getISO(endTime)}`,
+      length: changesets.length,
+      output: changesets,
+    });
   } catch (e) {
     next(e);
   }
