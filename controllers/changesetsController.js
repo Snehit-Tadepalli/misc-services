@@ -1,10 +1,6 @@
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
-const path = require("path");
-const rootPath = path.join(__dirname + "\\..");
-
-const ContentGenerator = require("../ContentGenerator");
 const { DAY, HOUR } = require("../utils/time");
 const userData = require("../utils/userData");
 
@@ -17,8 +13,8 @@ const checkTimeDifference = (startTime, endTime) => {
   const end = endTime === null ? Date.now() : Date.parse(endTime);
   if (end < start) throw new Error("End date is higher than start date");
 
-  if (end - start > DAY * 7) {
-    throw new Error("Date range should not be morethan 7 days");
+  if (end - start > DAY * 31) {
+    throw new Error("Date range should not be morethan 31 days");
   }
 
   return [start, end];
@@ -85,16 +81,6 @@ exports.changesets = async (req, res, next) => {
     const [start, end] = checkTimeDifference(startTime, endTime);
     const user = checkForValidUserName(userName);
     const changesets = await getChangesets(user, start, end);
-
-    // ContentGenerator.generateHtml({
-    //   status: "success",
-    //   message: `Changesets of the User: ${userName} from ${new Date(
-    //     getISO(startTime)
-    //   )} to ${new Date(getISO(endTime))}`,
-    //   output: changesets,
-    // });
-
-    // res.status(200).sendFile(rootPath + "/./html-templates/output.html");
 
     res.status(200).json({
       status: "success",
