@@ -10,8 +10,11 @@ const getISO = (UNIXTimeStamp) => {
 
 const checkTimeDifference = (startTime, endTime) => {
   const start = Date.parse(startTime);
-  const end = endTime === null ? Date.now() : Date.parse(endTime);
+  let end = endTime === null ? Date.now() : Date.parse(endTime);
+
   if (end < start) throw new Error("End date is higher than start date");
+
+  if (start === end) end = start + HOUR * 24;
 
   if (end - start > DAY * 31) {
     throw new Error("Date range should not be morethan 31 days");
@@ -73,6 +76,32 @@ const getChangesets = async (displayName, startTime, endTime) => {
   return data;
 };
 
+const generateOutput = (changesets) => {
+  const output = {
+    sources: {},
+    hashtags: {},
+    comments: {},
+  };
+
+  changesets.forEach((changeset) => {
+    const { source, hashtags: hashtag, comment } = changeset;
+
+    !output.sources.hasOwnProperty(source)
+      ? (output.sources[source] = 1)
+      : (output.sources[source] = output.sources[source] + 1);
+
+    !output.hashtags.hasOwnProperty(hashtag)
+      ? (output.hashtags[hashtag] = 1)
+      : (output.hashtags[hashtag] = output.hashtags[hashtag] + 1);
+
+    !output.comments.hasOwnProperty(comment)
+      ? (output.comments[comment] = 1)
+      : (output.comments[comment] = output.comments[comment] + 1);
+  });
+
+  return output;
+};
+
 exports.changesets = async (req, res, next) => {
   const { userName, time } = req.query;
   let [startTime, endTime = null] = time.split(",");
@@ -81,18 +110,15 @@ exports.changesets = async (req, res, next) => {
     const [start, end] = checkTimeDifference(startTime, endTime);
     const user = checkForValidUserName(userName);
     const changesets = await getChangesets(user, start, end);
+    const output = generateOutput(changesets);
 
     res.status(200).json({
       status: "success",
-      message: `Changesets of the User: ${userName} from ${getISO(
-        startTime
-      )} to ${getISO(endTime)}`,
-      length: changesets.length,
-      output: changesets,
+      user: userName,
+      changesetsCount: changesets.length,
+      output,
     });
   } catch (e) {
     next(e);
   }
 };
-
-// ATCI, My Contributions, Ideation follow up.
